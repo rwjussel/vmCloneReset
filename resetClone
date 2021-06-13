@@ -6,6 +6,12 @@
 #TODO: support other OSes
 
 #TODO: Check if new hostname arg has been provided
+if [[ $# -eq 0 ]] ; then
+    echo 'No hostname specified. Set required parameter 
+    ex: cloneReset myNewHostname'
+    exit 0
+fi
+
 echo "Resetting Cloned VM $HOSTNAME.o"
 echo ''
 
