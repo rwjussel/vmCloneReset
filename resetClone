@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+# Script to help reset cloned VMs for more info see Dan Ford's Homelab guide
+# series: https://www.dlford.io/pfsense-nat-how-to-home-lab-part-3/
+
+#TODO: support other OSes
+
+#TODO: Check if new hostname arg has been provided
+echo "Resetting Cloned VM $HOSTNAME.o"
+echo ''
+
+# These commands are specific to Ubuntu, consult your distribution’s documentation 
+# if you are not using Ubuntu.  What we are doing is deleting the machine-id from 
+# both locations /etc/ and /var/lib/dbus, creating a new machine-id in /etc/ and 
+# symlinking it to /var/lib/dbus.
+echo "Resetting MachineId."
+echo ''
+rm -f /var/lib/dbus/machine-id
+rm -f /etc/machine-id
+/usr/bin/dbus-uuidgen --ensure=/etc/machine-id
+ln -s /etc/machine-id /var/lib/dbus/
+
+echo "Setting New hostname: $1 "
+echo ''
+sed -i "s|$HOSTNAME|$1|g" /etc/hosts
+sed -i "s|$HOSTNAME|$1|g" /etch/hostname
+hostnamectl set-hostname $1
+
+
+echo "Resetting SSH Identifiers and keys."
+echo ''
+
+ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa -y
+ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa -y
+ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521 -y
+
